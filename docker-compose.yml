@@ -1,0 +1,33 @@
+version: '3'
+
+services:
+
+    # mqtt broker
+    mosquitto:
+        build: mosquitto
+#        ports:
+#            - "1883:1883"
+#            - "9001:9001"
+
+    # zigbee to mqtt bridge
+    zigbee2mqtt:
+        container_name: zigbee2mqtt
+        depends_on: [mosquitto]
+        image: koenkk/zigbee2mqtt
+        volumes:
+            - ./data:/app/data
+            - /run/udev:/run/udev:ro
+        devices:
+            - /dev/ttyACM0:/dev/ttyACM0
+        restart: always
+        network_mode: host
+        privileged: true
+        environment:
+            - TZ=Europe/Prague
+
+    # mqtt to udp bridge
+    mqtt2udp:
+        depends_on: [mosquitto]
+        build: mqtt2udp
+        restart: always
+    
