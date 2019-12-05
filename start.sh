@@ -1,5 +1,5 @@
 #!/bin/bash
 
 source .commons
-initTemp false
+permitJoin false
 docker-compose up -d

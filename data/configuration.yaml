@@ -1,6 +1,5 @@
+permit_join: true
 homeassistant: false
-permit_join: %PERMIT_JOIN%
-
 mqtt:
   base_topic: zigbee2mqtt
   server: 'mqtt://mosquitto'

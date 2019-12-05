@@ -1,10 +1,8 @@
-RAMDISKDIR=/tmp/zigbee2mqtt
 
-# init temp dir and populate it with last stored data
-function initTemp() {
-  rm -rf $RAMDISKDIR
-  mkdir -p $RAMDISKDIR
-  cat templates/configuration.yaml | sed s/%PERMIT_JOIN%/$1/g >$RAMDISKDIR/configuration.yaml
+function permitJoin() {
+    echo "permit_join: $1" > /tmp/configuration.yaml.tmp
+    cat data/configuration.yaml | grep -v "permit_join:" >> /tmp/configuration.yaml.tmp
+    cat /tmp/configuration.yaml.tmp > data/configuration.yaml
 }
 
 

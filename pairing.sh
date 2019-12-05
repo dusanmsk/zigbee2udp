@@ -2,5 +2,5 @@
 source .commons
 
 docker-compose stop
-initTemp true
+permitJoin true
 docker-compose up
