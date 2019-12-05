@@ -78,5 +78,9 @@ For example create analog input with command recognition:
 
 # TODO
 
+- prepare zibgee data dir in tmpfs (because sdcard) and handle synchronization with persistent space
+- prepare scripts for run in pairing mode
+- find how to use friendly naming feature and do not lost any informations during rsyncing to tmpfs
+
 - document digital inputs
 - implement bi-directional communication (to control zigbee devices from loxone)

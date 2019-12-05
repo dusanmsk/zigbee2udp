@@ -1,5 +1,6 @@
 #!/bin/bash
-
 source .commons
-initTemp false
+
+docker-compose stop
+initTemp true
 docker-compose up
