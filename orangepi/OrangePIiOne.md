@@ -20,16 +20,18 @@ We need to install everything on bare metal and then switch to overlayroot for s
 #### zigbee2mqtt installation
 follow https://www.zigbee2mqtt.io/getting_started/running_zigbee2mqtt.html for reference, quick instructions are:
 
+    sudo apt install -y git python-dev python-pip python-setuptools mosquitto
+
     sudo mkdir /opt/zigbee2mqtt && chown zigbee:zigbee /opt/zigbee2mqtt
     cd /opt/zigbee2mqtt
-    git clone THIS .
+    git clone --recurse-submodules https://github.com/dusanmsk/zigbee2udp.git .
     git submodule init
     git submodule update
     
     cd zigbee2mqtt
     sudo curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
     
-    sudo apt-get install -y nodejs git make g++ gcc git python-dev python-pip python-setuptools mosquitto
+    sudo apt-get install -y nodejs git make g++ gcc
     
     npm install
     cd ..
