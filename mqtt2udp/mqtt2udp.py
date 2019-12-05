@@ -28,5 +28,5 @@ client.on_connect = on_connect
 client.on_message = on_message
 
 print("Connecting ...")
-client.connect(MQTT_ADDRESS, MQTT_PORT, 60)
-client.loop_forever(60)
+client.connect(MQTT_ADDRESS, MQTT_PORT)
+client.loop_forever()

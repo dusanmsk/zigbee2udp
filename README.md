@@ -8,9 +8,17 @@ Project is meant as follow-up to https://www.zigbee2mqtt.io/.
 
 - You need to follow https://www.zigbee2mqtt.io/ to prepare hardware and setup zigbee2mqtt bridge. When done, continue reading this manual.
 - Create new UDP Virtual input in loxone which will listen (for example) on udp port 4444
+- Then:
+
+
+    sudo apt install docker-compose docker.io git
+    git clone --recurse-submodules https://github.com/dusanmsk/zigbee2udp.git zigbee2mqtt
+    
 - Edit mqtt2udp/mqtt2udp.py and set loxone address and port
 - optionally set timezone in docker-compose.yml zigbee2mqtt section
-- ./run.sh
+
+
+    ./run.sh
 
 After you pair some zigbee devices, you shold edit data/configuration.yml to disable pairing and edit friendly names for paired devices
 and restart containers.
