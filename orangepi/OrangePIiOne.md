@@ -1,3 +1,5 @@
+# work in progress and maybe never be finished
+
 # how to install on orangepi one
 
 It is not possible to run docker on orangepi when using overlayroot so docker-compose is not an option.
@@ -25,23 +27,23 @@ follow https://www.zigbee2mqtt.io/getting_started/running_zigbee2mqtt.html for r
     sudo mkdir /opt/zigbee2mqtt && chown zigbee:zigbee /opt/zigbee2mqtt
     cd /opt/zigbee2mqtt
     git clone --recurse-submodules https://github.com/dusanmsk/zigbee2udp.git .
-    git submodule init
-    git submodule update
     
     cd zigbee2mqtt
     sudo curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
-    
     sudo apt-get install -y nodejs git make g++ gcc
-    
     npm install
     cd ..
     
-    sudo cp zigbee2mqtt.service /etc/systemd/system/
-    sudo systemctl enable zigbee2mqtt.service
     
     # sudo journalctl -u zigbee2mqtt.service -f
     
     pip install paho-mqtt
     
+    sudo cp *.service /etc/systemd/system/
+    sudo systemctl enable zigbee2mqtt.service
+    sudo systemctl enable mqtt2udp.service
+    TODO systemctl enable 
+
+You have to edit zigbee2mqtt/data/configuration.yaml if required and mqtt2udp/mqtt2udp.py to set loxone address and udp port where packets will be send to.    
     
     
