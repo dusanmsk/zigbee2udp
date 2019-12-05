@@ -2,12 +2,19 @@ import paho.mqtt.client as mqtt
 import json
 import socket
 
+# --------------------------------
+
 LOXONE_ADDRESS = "192.168.2.2"
 LOXONE_PORT = 4444
+
+# --------------------------------
 
 MQTT_ADDRESS = "mosquitto"
 MQTT_PORT = 1883
 
+# --------------------------------
+
+print("Starting mqtt2udp bridge")
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 def on_connect(client, userdata, flags, rc):
