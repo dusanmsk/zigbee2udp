@@ -4,7 +4,7 @@ RAMDISKDIR=/tmp/zigbee2mqtt
 function initTemp() {
   rm -rf $RAMDISKDIR
   mkdir -p $RAMDISKDIR
-  cat data/configuration_template.yaml | sed s/%PERMIT_JOIN%/$1/g >$RAMDISKDIR/configuration.yml
+  cat templates/configuration.yaml | sed s/%PERMIT_JOIN%/$1/g >$RAMDISKDIR/configuration.yml
 }
 
 
