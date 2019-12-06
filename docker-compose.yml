@@ -26,8 +26,8 @@ services:
             - TZ=Europe/Prague
 
     # mqtt to udp bridge
-    mqtt2udp:
-        depends_on: [mosquitto]
-        build: mqtt2udp
-        restart: always
+#    mqtt2udp:
+#        depends_on: [mosquitto]
+#        build: mqtt2udp
+#        restart: always
     
