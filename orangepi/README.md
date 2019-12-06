@@ -17,39 +17,44 @@ We need to install everything on bare metal and then switch to overlayroot for s
 
 *1 - you should use gparted or gparted live cd/usb or any windows partitioning software able to handle ext4 partitions
 
-#### zigbee2mqtt installation
-follow https://www.zigbee2mqtt.io/getting_started/running_zigbee2mqtt.html for reference, quick instructions are:
+#### installation
 
     # login as zigbee
+    
+    # create filesystem on second partition (will be used to store runtime data by rwsync daemon)
     sudo mkfs.ext4 /dev/mmcblk0p2
     
-    cd
-    git clone https://github.com/dusanmsk/zigbee2udp.git
-    git submodule init
-    git submodule update
-    
+    # install everything required
     sudo curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
     sudo apt-get install -y nodejs git make g++ gcc git python-dev python-pip python-setuptools mosquitto
-    pip install paho-mqtt
+    sudo pip install paho-mqtt
+
+    # clone this repo        
+    sudo git clone https://github.com/dusanmsk/zigbee2udp.git /opt/zigbee2udp
+    sudo chown -R zigbee:zigbee /opt/zigbee2udp
+    cd /opt/zigbee2udp
+    git submodule init
+    git submodule update
+
+    # instal everything for zigbee2mqtt    
+    cd zigbee2mqtt && npm install && cd ..
+
+    # copy all service files    
+    sudo cp orangepi/*.service /etc/systemd/system/
+        
+    # now prepare everything to switch rootfs to readonly mode
+    cd readonlyroot
+    sudo ./install.sh
+    source /etc/rwsync.conf
+    mkdir -p $RWSYNC_LOWER_DIR/zigbee2mqtt
+    cp 
     
-    cd zigbee2mqtt
-    npm install
-    cd ..
-    
-    sudo cp *.service /etc/systemd/system/
     sudo systemctl enable zigbee2mqtt.service
     sudo systemctl enable mqtt2udp.service
-    sudo systemctl enable rwsync.service
-   
-    # sudo journalctl -u zigbee2mqtt.service -f
+
+    # switch rootfs to readonly. From now it will not be possible to change anything on rootfs.
+    # all changes will be lost after reboot.
+    # to make permanent changes, you have to run overlayroot-chroot, comment out "overlayroot="tmpfs"" in /etc/overlayroot.local.conf and reboot
+    # when done, uncomment and reboot again
     
-    ...
-    
-    
-    sudo cp overlayroot.local.conf /etc
-    reboot
-    
-    sudo mkdir /mnt/rw_sdcard/zigbee2mqtt /synced/zigbee2mqtt
-    ln -s /synced/zigbee2mqtt data
-    sudo cp configuration/* 
-    
+    makeroot_ro    

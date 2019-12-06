@@ -1,0 +1,10 @@
+#!/bin/bash
+
+cat <<EOF >/etc/overlayroot.local.conf
+overlayroot="tmpfs"
+EOF
+
+echo "System is going to RO mode ..."
+overlayroot-chroot systemctl enable rwsync.service
+sleep 2
+reboot

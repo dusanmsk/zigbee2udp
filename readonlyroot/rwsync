@@ -1,10 +1,6 @@
 #!/bin/bash
 
-SLEEPTIME=3600
-
-UPPER=/synced
-LOWER=/mnt/rw_sdcard
-LOWER_DEVICE=/dev/mmcblk0p2
+source /etc/rwsync.conf
 
 function saveData() {
     rsync -a --delete $UPPER/ $LOWER/
@@ -16,6 +12,7 @@ function loadData() {
 
 function handleExit() {
     saveData
+    umount $LOWER
     exit
 }
 
@@ -30,4 +27,3 @@ while true; do
     sleep $SLEEPTIME
     saveData
 done
-

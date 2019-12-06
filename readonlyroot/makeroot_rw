@@ -1,0 +1,8 @@
+#!/bin/bash
+
+echo "System is going to RW mode ..."
+overlayroot-chroot rm -f /etc/overlayroot.local.conf
+overlayroot-chroot systemctl disable rwsync.service
+
+sleep 2
+reboot
