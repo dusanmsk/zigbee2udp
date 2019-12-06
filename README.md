@@ -20,23 +20,7 @@ Project is meant as follow-up to https://www.zigbee2mqtt.io/.
 
     ./run.sh
 
-After you pair some zigbee devices, you shold edit data/configuration.yml to disable pairing and edit friendly names for paired devices
-and restart containers.
-
-For example:
-
-    homeassistant: false
-    permit_join: false              # <<<<
-    mqtt:
-      base_topic: zigbee2mqtt
-      server: 'mqtt://localhost'
-    serial:
-      port: /dev/ttyACM0
-    devices:
-      '0x00158d00044a1146':
-        friendly_name: 'livingroom/aquara'      # <<<<
-      '0x00158d0003f47db9':
-        friendly_name: 'kitchen/aquara'         # <<<<
+## TODO pairing and renaming using android phone
 
 
 #### How it works
@@ -47,7 +31,7 @@ mapping it to udp messages which are then sent to loxone miniserver.
 
 Example:
 
-Zigbee device 0x00158d00044a1146 sends payload
+Zigbee device 0x00158d00044a1146 (named livingroom/aquara) sends payload:
 
     {
         "battery":100,
@@ -77,10 +61,6 @@ For example create analog input with command recognition:
 ... and you will receive livingroom temperature as analog value.
 
 # TODO
-
-- prepare zibgee data dir in tmpfs (because sdcard) and handle synchronization with persistent space
-- prepare scripts for run in pairing mode
-- find how to use friendly naming feature and do not lost any informations during rsyncing to tmpfs
 
 - document digital inputs
 - implement bi-directional communication (to control zigbee devices from loxone)

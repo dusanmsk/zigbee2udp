@@ -1,3 +1,0 @@
-[submodule "zigbee2mqtt"]
-	path = zigbee2mqtt
-	url = https://github.com/dusanmsk/zigbee2mqtt.git
