@@ -21,23 +21,35 @@ We need to install everything on bare metal and then switch to overlayroot for s
 follow https://www.zigbee2mqtt.io/getting_started/running_zigbee2mqtt.html for reference, quick instructions are:
 
     # login as zigbee
+    sudo mkfs.ext4 /dev/mmcblk0p2
     
-    git clone THIS zigbee2udp
+    cd
+    git clone https://github.com/dusanmsk/zigbee2udp.git
     git submodule init
     git submodule update
     
     sudo curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
     sudo apt-get install -y nodejs git make g++ gcc git python-dev python-pip python-setuptools mosquitto
+    pip install paho-mqtt
     
     cd zigbee2mqtt
     npm install
     cd ..
     
-    sudo cp zigbee2mqtt.service /etc/systemd/system/
+    sudo cp *.service /etc/systemd/system/
     sudo systemctl enable zigbee2mqtt.service
-    
+    sudo systemctl enable mqtt2udp.service
+    sudo systemctl enable rwsync.service
+   
     # sudo journalctl -u zigbee2mqtt.service -f
     
-    pip install paho-mqtt
+    ...
     
+    
+    sudo cp overlayroot.local.conf /etc
+    reboot
+    
+    sudo mkdir /mnt/rw_sdcard/zigbee2mqtt /synced/zigbee2mqtt
+    ln -s /synced/zigbee2mqtt data
+    sudo cp configuration/* 
     

@@ -1,0 +1,33 @@
+#!/bin/bash
+
+SLEEPTIME=3600
+
+UPPER=/synced
+LOWER=/mnt/rw_sdcard
+LOWER_DEVICE=/dev/mmcblk0p2
+
+function saveData() {
+    rsync -a --delete $UPPER/ $LOWER/
+}
+
+function loadData() {
+    rsync -a $LOWER/ $UPPER/
+}
+
+function handleExit() {
+    saveData
+    exit
+}
+
+trap handleExit SIGINT SIGTERM EXIT
+
+mkdir -p $UPPER $LOWER
+mount $LOWER_DEVICE $LOWER
+
+loadData
+
+while true; do
+    sleep $SLEEPTIME
+    saveData
+done
+

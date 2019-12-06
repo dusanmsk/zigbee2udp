@@ -30,6 +30,11 @@ def on_message(client, userdata, msg):
     except Exception as e:
         print("Error " + e)
 
+
+def syncData() {
+    # TODO implement syncing
+}
+
 client = mqtt.Client("mqtt2udp")
 client.on_connect = on_connect
 client.on_message = on_message

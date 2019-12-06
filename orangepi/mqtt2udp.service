@@ -1,0 +1,14 @@
+[Unit]
+Description=mqtt2udp
+After=mosquitto
+
+[Service]
+ExecStart=TODO
+WorkingDirectory=/home/zigbee/zigbee2udp
+StandardOutput=inherit
+StandardError=inherit
+Restart=always
+User=zigbee
+
+[Install]
+WantedBy=multi-user.target

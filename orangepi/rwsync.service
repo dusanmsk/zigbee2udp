@@ -1,0 +1,13 @@
+[Unit]
+Description=Syncing daemon that stores files from ramdisk to sdcard.
+
+[Service]
+ExecStart=/bin/bash /home/zigbee/zigbee2udp/scripts/rwsync
+WorkingDirectory=/tmp
+StandardOutput=inherit
+StandardError=inherit
+Restart=always
+User=root
+
+[Install]
+WantedBy=multi-user.target
