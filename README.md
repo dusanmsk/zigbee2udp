@@ -23,9 +23,10 @@ Project is meant as follow-up to https://www.zigbee2mqtt.io/.
     # Edit mqtt2udp/mqtt2udp.py and set loxone address and port
     # optionally set timezone in docker-compose.yml zigbee2mqtt section
     # optionally change network_key in configuration/configuration.yaml
-    
-    ./start.sh
-    
+
+    # check everything is ok then break with ctrl+c    
+    ./run.sh
+        
     
 ###### When using device with sdcard (rpi, orangepi, ...)
 
@@ -71,8 +72,11 @@ Example for OrangePI One:
     # optionally set timezone in docker-compose.yml zigbee2mqtt section
     # optionally change network_key in configuration/configuration.yaml
         
-    ./start.sh
+    # check everything is ok then break with ctrl+c        
+    ./run.sh
 
+
+# todo service file
 
 When done and everything goes ok, docker is running from second partition (check du -hs /mnt/rw/var/lib/docker), you
 should switch rootfs to readonly:
