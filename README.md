@@ -22,6 +22,7 @@ Project is meant as follow-up to https://www.zigbee2mqtt.io/.
     
     # Edit mqtt2udp/mqtt2udp.py and set loxone address and port
     # optionally set timezone in docker-compose.yml zigbee2mqtt section
+    # optionally change network_key in configuration/configuration.yaml
     
     ./start.sh
     
@@ -47,23 +48,28 @@ Example for OrangePI One:
 
     sudo -i
     apt-get -y install docker-compose docker.io git f2fs-tools
+    
+    # create filesystem on second partition and mountpoint
     mkfs.f2fs -f /dev/mmcblk0p2
     mkdir /zigbee2mqtt/
     echo "/dev/mmcblk0p2   /zigbee2mqtt/   f2fs rw,background_gc=on,user_xattr 0 1" >> /etc/fstab
     mount -a
-    mkdir -p /zigbee2mqtt//var/lib/docker
+    
+    # move docker to second partition
     systemctl stop docker
+    mkdir -p /zigbee2mqtt/var/lib/docker
     rm -rf /var/lib/docker/
     ln -s /zigbee2mqtt/var/lib/docker /var/lib/docker
     systemctl start docker
-    docker ps -a
-    
+
+    # clone and setup    
     cd /zigbee2mqtt/
     git clone https://github.com/dusanmsk/zigbee2udp.git
     cd zigbee2udp
     
     # Edit mqtt2udp/mqtt2udp.py and set loxone address and port
     # optionally set timezone in docker-compose.yml zigbee2mqtt section
+    # optionally change network_key in configuration/configuration.yaml
         
     ./start.sh
 
