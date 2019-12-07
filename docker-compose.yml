@@ -17,7 +17,7 @@ services:
         depends_on: [mosquitto]
         image: koenkk/zigbee2mqtt
         volumes:
-            - ./data:/app/data
+            - /zigbee2mqtt/zigbee2udp/configuration:/app/data
             - /run/udev:/run/udev:ro
         devices:
             - /dev/ttyACM0:/dev/ttyACM0

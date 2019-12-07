@@ -11,20 +11,18 @@ Project is meant as follow-up to https://www.zigbee2mqtt.io/.
 - Then:
 
 
-    sudo -i
-    apt install docker-compose docker.io git
-    git clone https://github.com/dusanmsk/zigbee2udp.git
-    
-- Edit mqtt2udp/mqtt2udp.py and set loxone address and port
-- optionally set timezone in docker-compose.yml zigbee2mqtt section
-
-
 ###### For baremetal with hdd or ssd (you don't care filesystem lifetime):
 
-    
+    sudo -i
+    apt-get install -y docker-compose docker.io git
+    mkdir /zigbee2mqtt
+    cd /zigbee2mqtt
+    git clone https://github.com/dusanmsk/zigbee2udp.git
     cd zigbee2udp
-    mkdir -p /mnt/rw/zigbee2mqtt
-    cp -a configuration/* /mnt/rw/zigbee2mqtt
+    
+    # Edit mqtt2udp/mqtt2udp.py and set loxone address and port
+    # optionally set timezone in docker-compose.yml zigbee2mqtt section
+    
     ./start.sh
     
     
@@ -47,23 +45,28 @@ Example for OrangePI One:
 - then run following:
 
 
-    apt-get install f2fs-tools
-    mkfs.f2fs /dev/mmcblk0p2
-    mkdir /mnt/rw
-    echo "/dev/mmcblk0p2   /mnt/rw   f2fs rw,background_gc=on,user_xattr 0 1" >> /etc/fstab
+    sudo -i
+    apt-get -y install docker-compose docker.io git f2fs-tools
+    mkfs.f2fs -f /dev/mmcblk0p2
+    mkdir /zigbee2mqtt/
+    echo "/dev/mmcblk0p2   /zigbee2mqtt/   f2fs rw,background_gc=on,user_xattr 0 1" >> /etc/fstab
     mount -a
-    mkdir -p /mnt/rw/var/lib/docker
+    mkdir -p /zigbee2mqtt//var/lib/docker
     systemctl stop docker
     rm -rf /var/lib/docker/
-    ln -s /mnt/rw/var/lib/docker /var/lib/docker
+    ln -s /zigbee2mqtt/var/lib/docker /var/lib/docker
     systemctl start docker
     docker ps -a
     
+    cd /zigbee2mqtt/
+    git clone https://github.com/dusanmsk/zigbee2udp.git
     cd zigbee2udp
-    mkdir -p /mnt/rw/zigbee2mqtt
-    cp -a configuration/* /mnt/rw/zigbee2mqtt
-    ./start.sh
     
+    # Edit mqtt2udp/mqtt2udp.py and set loxone address and port
+    # optionally set timezone in docker-compose.yml zigbee2mqtt section
+        
+    ./start.sh
+
 
 When done and everything goes ok, docker is running from second partition (check du -hs /mnt/rw/var/lib/docker), you
 should switch rootfs to readonly:
