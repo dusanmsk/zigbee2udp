@@ -9,7 +9,7 @@ LOXONE_PORT = 4444
 
 # --------------------------------
 
-MQTT_ADDRESS = "localhost"
+MQTT_ADDRESS = "mosquitto"
 MQTT_PORT = 1883
 
 # --------------------------------
