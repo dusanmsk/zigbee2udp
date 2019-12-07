@@ -6,7 +6,6 @@ services:
     mosquitto:
         build: mosquitto
         restart: always
-        network_mode: host
         ports:
             - "1883:1883"
             - "9001:9001"
