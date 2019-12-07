@@ -24,8 +24,11 @@ Project is meant as follow-up to https://www.zigbee2mqtt.io/.
     # optionally set timezone in docker-compose.yml zigbee2mqtt section
     # optionally change network_key in configuration/configuration.yaml
 
-    # check everything is ok then break with ctrl+c    
+        
     ./run.sh
+    # check everything is ok then break with ctrl+c
+    
+    ./start.sh
         
     
 ###### When using device with sdcard (rpi, orangepi, ...)
@@ -72,15 +75,16 @@ Example for OrangePI One:
     # optionally set timezone in docker-compose.yml zigbee2mqtt section
     # optionally change network_key in configuration/configuration.yaml
         
-    # check everything is ok then break with ctrl+c        
     ./run.sh
+    # check everything is ok then break with ctrl+c
+    
+    ./start.sh
 
-
-# todo service file
 
 When done and everything goes ok, docker is running from second partition (check du -hs /mnt/rw/var/lib/docker), you
 should switch rootfs to readonly:
-    
+
+    sudo apt-get install overlayroot    
     sudo cp overlayroot.local.conf /etc
     reboot
     
