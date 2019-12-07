@@ -13,38 +13,40 @@ Project is meant as follow-up to https://www.zigbee2mqtt.io/.
 
     sudo -i
     apt install docker-compose docker.io git
-    git clone --recurse-submodules https://github.com/dusanmsk/zigbee2udp.git
-    cd zigbee2udp
-    mkdir -p /mnt/rw/zigbee2mqtt
-    cp -a configuration/* /mnt/rw/zigbee2mqtt
+    git clone https://github.com/dusanmsk/zigbee2udp.git
     
 - Edit mqtt2udp/mqtt2udp.py and set loxone address and port
 - optionally set timezone in docker-compose.yml zigbee2mqtt section
 
 
+###### For baremetal with hdd or ssd (you don't care filesystem lifetime):
+
+    
+    cd zigbee2udp
+    mkdir -p /mnt/rw/zigbee2mqtt
+    cp -a configuration/* /mnt/rw/zigbee2mqtt
     ./start.sh
     
     
-#### When using device with sdcard (rpi, orangepi, ...)
+###### When using device with sdcard (rpi, orangepi, ...)
 
-TODO
 Example for OrangePI One:
 
 - flash sdcard with ubuntu based armbian for orangepi one
-- do not boot the card yet, run some partitioning software (*1) and:
-    - at the beginning there should be partitions like this:
+- do not boot the card yet, run some partitioning software (*1) and create empty second partion after first one
+    - before you begin there are be partitions like this:
         - free space | small primary linux | free space
-    - now create new partition at the very end of the sdcard (but let there some space behind for wear leveling), size by your needs, will be used to store all persistent data, for example:
+    - now create new partition at the very end of the sdcard, but let there some space behind for wear leveling. Size >1G.
         - free space | primary linux | free space | primary linux | free space ( at least 200 MB, the more the better )
-    - now resize first ext4 partition to gain all free space up to second partition
+    - now resize first ext4 partition to gain all free space up to second partition (you should skip this so armbian will do it on first boot)
         - free space | ext4 (rootfs) | linux (x GB) | free (>200MB)
+        
+*1 - you should use gparted or gparted live cd/usb or any windows partitioning software able to handle ext4 partitions        
     
-- boot the board, login with root:1234, change root password and create user 'zigbee'
-- logout then login back as zigbee
+- boot the board, login with root:1234, change root password. You should create new user and use it later (or do everything as root like me :D )
+- then run following:
 
-*1 - you should use gparted or gparted live cd/usb or any windows partitioning software able to handle ext4 partitions
 
-    sudo -i
     apt-get install f2fs-tools
     mkfs.f2fs /dev/mmcblk0p2
     mkdir /mnt/rw
@@ -57,9 +59,24 @@ Example for OrangePI One:
     systemctl start docker
     docker ps -a
     
+    cd zigbee2udp
+    mkdir -p /mnt/rw/zigbee2mqtt
+    cp -a configuration/* /mnt/rw/zigbee2mqtt
+    ./start.sh
+    
+
+When done and everything goes ok, docker is running from second partition (check du -hs /mnt/rw/var/lib/docker), you
+should switch rootfs to readonly:
+    
     sudo cp overlayroot.local.conf /etc
     reboot
     
+Rootfs is now in readonly and should not be modified anyway. If you need to modify rootfs, do
+
+    overlayroot-chroot rm -f /etc/overlayroot.local.conf
+    reboot
+    
+Make your changes, then reenable overlayroot again (previous step).    
 
 ## TODO pairing and renaming using android phone
 
@@ -100,6 +117,8 @@ For example create analog input with command recognition:
     zigbee2mqtt/livingroom/aquara/temperature \v
    
 ... and you will receive livingroom temperature as analog value.
+
+# TODO mqtt messages for configuration
 
 # TODO
 

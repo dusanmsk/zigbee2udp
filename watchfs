@@ -1,0 +1,19 @@
+PREV_VAL1=""
+PREV_VAL2=""
+while true; do
+        NEXT_VAL1=`cat /sys/fs/ext4/mmcblk0p1/lifetime_write_kbytes`
+        if [ "$PREV_VAL1" != "$NEXT_VAL1" ]; then
+                amount=`echo "$NEXT_VAL1-$PREV_VAL1" | bc`
+                echo "rootfs $amount kB"
+        fi
+        PREV_VAL1=$NEXT_VAL1
+
+        NEXT_VAL2=`cat /sys/fs/ext4/mmcblk0p2/lifetime_write_kbytes`
+        if [ "$PREV_VAL2" != "$NEXT_VAL2" ]; then
+                amount=`echo "$NEXT_VAL2-$PREV_VAL2" | bc`
+                echo "rootfs $amount kB"
+        fi
+        PREV_VAL2=$NEXT_VAL2
+
+        sleep 1
+done
