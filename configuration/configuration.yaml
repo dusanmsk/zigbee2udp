@@ -2,7 +2,7 @@ permit_join: false
 homeassistant: false
 mqtt:
   base_topic: zigbee2mqtt
-  server: 'mqtt://localhost'
+  server: 'mqtt://mosquitto'
   # user: my_user
   # password: my_password
 
@@ -12,5 +12,7 @@ serial:
 devices: devices.yaml
 
 advanced:
+  cache_state: false
+  log_directory: /tmp/zigbee2mqtt/%TIMESTAMP%
   network_key: [1, 2, 3, 4, 5, 6, 77, 88, 99, 98, 97, 96, 95, 94, 93, 92]
 
