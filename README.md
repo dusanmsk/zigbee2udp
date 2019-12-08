@@ -36,16 +36,16 @@ Project is meant as follow-up to https://www.zigbee2mqtt.io/.
 Example for OrangePI One:
 
 - flash sdcard with ubuntu based armbian for orangepi one
-- do not boot the card yet, run some partitioning software (*1) and create empty second partion after first one
-    - before you begin there are be partitions like this:
-        - free space | small primary linux | free space
+- do not boot the card yet, run some partitioning software that support ext4 and create new partition behind current one, so:
+    - before you begin there is single like this:
+        - free space | ext4 (900MMB) | free space
     - now create new partition at the very end of the sdcard, but let there some space behind for wear leveling. Size >1G.
-        - free space | primary linux | free space | primary linux | free space ( at least 200 MB, the more the better )
-    - now resize first ext4 partition to gain all free space up to second partition (you should skip this so armbian will do it on first boot)
-        - free space | ext4 (rootfs) | linux (x GB) | free (>200MB)
+        - free space | ext4 (900MB) | free space | new partition (1+GB) | free space ( at least 200 MB, the more the better )
+    - now resize first ext4 partition to gain all free space up to second partition
+        - free space | ext4 (2+GB) | new partition (2+ GB) | free (>200MB)
         
-*1 - you should use gparted or gparted live cd/usb or any windows partitioning software able to handle ext4 partitions        
-    
+*1 - you should use gparted or gparted live cd/usb if you are running windows or natively on linux
+
 - boot the board, login with root:1234, change root password. You should create new user and use it later (or do everything as root like me :D )
 - then run following:
 
@@ -84,7 +84,7 @@ Example for OrangePI One:
 When done and everything goes ok, docker is running from second partition (check du -hs /mnt/rw/var/lib/docker), you
 should switch rootfs to readonly:
 
-    sudo apt-get install overlayroot    
+    sudo apt-get install -y overlayroot    
     sudo cp overlayroot.local.conf /etc
     reboot
     

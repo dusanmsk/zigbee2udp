@@ -6,7 +6,7 @@ services:
     mosquitto:
         build: mosquitto
         restart: always
-        ports:
+        expose:
             - "1883:1883"
             - "9001:9001"
 
