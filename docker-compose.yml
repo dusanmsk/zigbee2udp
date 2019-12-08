@@ -6,14 +6,16 @@ services:
     mosquitto:
         build: mosquitto
         restart: always
-        expose:
-            - "1883"
-            - "9001"
+        network_mode: host
+        ports:
+            - "1883:1883"
+            - "9001:9001"
 
     # zigbee to mqtt bridge
     zigbee2mqtt:
         container_name: zigbee2mqtt
         depends_on: [mosquitto]
+        network_mode: host
         image: koenkk/zigbee2mqtt
         volumes:
             - /zigbee2mqtt/zigbee2udp/configuration:/app/data
@@ -28,6 +30,7 @@ services:
     # mqtt to udp bridge
     mqtt2udp:
         depends_on: [mosquitto]
+        network_mode: host
         build: mqtt2udp
         restart: always
 
