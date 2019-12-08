@@ -7,8 +7,8 @@ services:
         build: mosquitto
         restart: always
         expose:
-            - "1883:1883"
-            - "9001:9001"
+            - "1883"
+            - "9001"
 
     # zigbee to mqtt bridge
     zigbee2mqtt:
