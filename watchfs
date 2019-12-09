@@ -8,7 +8,7 @@ while true; do
         fi
         PREV_VAL1=$NEXT_VAL1
 
-        NEXT_VAL2=`cat /sys/fs/ext4/mmcblk0p2/lifetime_write_kbytes`
+        NEXT_VAL2=`cat /sys/fs/f2fs/mmcblk0p2/lifetime_write_kbytes`
         if [ "$PREV_VAL2" != "$NEXT_VAL2" ]; then
                 amount=`echo "$NEXT_VAL2-$PREV_VAL2" | bc`
                 echo "rootfs $amount kB"
