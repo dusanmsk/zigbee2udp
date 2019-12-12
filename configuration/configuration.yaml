@@ -1,7 +1,7 @@
 permit_join: false
 homeassistant: false
 mqtt:
-  base_topic: zigbee2mqtt
+  base_topic: zigbee
   server: 'mqtt://localhost'
   # user: my_user
   # password: my_password

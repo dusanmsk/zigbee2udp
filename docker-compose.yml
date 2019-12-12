@@ -14,7 +14,6 @@ services:
     # zigbee to mqtt bridge
     zigbee2mqtt:
         container_name: zigbee2mqtt
-        depends_on: [mosquitto]
         network_mode: host
         image: koenkk/zigbee2mqtt:latest-dev
         volumes:
@@ -29,8 +28,13 @@ services:
 
     # mqtt to udp bridge
     mqtt2udp:
-        depends_on: [mosquitto]
         network_mode: host
         build: mqtt2udp
         restart: always
 
+    loxone2zigbee:
+        network_mode: host
+        build: loxone2zigbee
+        ports:
+        - 4445
+        restart: always

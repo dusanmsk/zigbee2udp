@@ -19,7 +19,7 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 def on_connect(client, userdata, flags, rc):
     print("Connected with result code " + str(rc))
-    client.subscribe("zigbee2mqtt/#")
+    client.subscribe("zigbee/#")
 
 def on_message(client, userdata, msg):
     try:

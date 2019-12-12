@@ -162,3 +162,10 @@ And that's all.
 
 - document digital inputs
 - implement bi-directional communication (to control zigbee devices from loxone)
+
+example ikea led:
+
+zigbee2mqtt/led1/set -m { "brightness" : 1 }
+
+zigbee2udp/led1/set/brightness 1
+
