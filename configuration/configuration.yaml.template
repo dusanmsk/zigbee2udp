@@ -14,5 +14,4 @@ devices: devices.yaml
 advanced:
   cache_state: false
   log_directory: /tmp/zigbee2mqtt/%TIMESTAMP%
-  network_key: [1, 2, 3, 4, 5, 6, 77, 88, 99, 98, 97, 96, 95, 94, 93, 92]
 
