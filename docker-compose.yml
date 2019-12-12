@@ -23,14 +23,16 @@ services:
             - /dev/ttyACM0:/dev/ttyACM0
         restart: always
         privileged: true
-        environment:
-            - TZ=Europe/Prague
+        env_file:
+            - variables
 
     # mqtt to udp bridge
-    mqtt2udp:
+    zigbee2loxone:
         network_mode: host
-        build: mqtt2udp
+        build: zigbee2loxone
         restart: always
+        env_file:
+            - variables
 
     loxone2zigbee:
         network_mode: host
@@ -38,3 +40,5 @@ services:
         ports:
         - 4445
         restart: always
+        env_file:
+            - variables

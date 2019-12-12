@@ -1,0 +1,3 @@
+#!/bin/bash
+. variables
+cat configuration/configuration.yaml.template | sed s/%MQTT_ADDRESS%/$MQTT_ADDRESS/ > configuration/configuration.yaml
