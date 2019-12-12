@@ -4,9 +4,11 @@ Simple docker-compose suite to connect zigbee ecosystem to Loxone using UDP pack
 
 Project is meant as follow-up to https://www.zigbee2mqtt.io/.
 
-#### How to install
+#### What you should know before you start
+- you know how to create udp inputs in loxone
+- you already have custom flashed zigbee usb token (https://www.zigbee2mqtt.io/) 
 
-- You need to follow https://www.zigbee2mqtt.io/ to prepare hardware and setup zigbee2mqtt bridge. When done, continue reading this manual.
+#### How to install
 - Create new UDP Virtual input in loxone which will listen (for example) on udp port 4444
 - Then:
 
@@ -23,6 +25,7 @@ Project is meant as follow-up to https://www.zigbee2mqtt.io/.
     # Edit mqtt2udp/mqtt2udp.py and set loxone address and port
     # optionally set timezone in docker-compose.yml zigbee2mqtt section
     # optionally change network_key in configuration/configuration.yaml
+    # optionally remove mqtt section in docker-compose if you already have some mqtt server running somewhere else
 
         
     ./run.sh
@@ -74,6 +77,7 @@ Example for OrangePI One:
     # Edit mqtt2udp/mqtt2udp.py and set loxone address and port
     # optionally set timezone in docker-compose.yml zigbee2mqtt section
     # optionally change network_key in configuration/configuration.yaml
+    # optionally remove mqtt section in docker-compose if you already have some mqtt server running somewhere else
         
     ./run.sh
     # check everything is ok then break with ctrl+c
@@ -95,10 +99,7 @@ Rootfs is now in readonly and should not be modified anyway. If you need to modi
     
 Make your changes, then reenable overlayroot again (previous step).    
 
-## TODO pairing and renaming using android phone
-
-
-#### How it works
+# How it works
 
 Zigbee2mqtt receives zigbee messages from zigbee devices and sends them to mqtt topic.
 Mqtt2udp listens for that topics and extracts all flat data coming from zigbee device,
@@ -135,7 +136,27 @@ For example create analog input with command recognition:
    
 ... and you will receive livingroom temperature as analog value.
 
-# TODO mqtt messages for configuration
+## Pairing using android phone
+
+If you don't want to use you laptop everytime you need to pair new device, you should use any mqtt dashboard application capable
+to receive and send messages. Here is quick howto for android mqtt dashboard app:
+
+- click on (+) in bottom right corner
+- Client ID: whatever you want
+- Server: your mqtt server address
+- Port: usually 1883
+- click CREATE
+- in Subscribe section
+    - create listener for logs (mqtt address zigbee2mqtt/bridge/log)
+- in Publish section
+    - create new switch, name "Permit join", topic zigbee2mqtt/bridge/config/permit_join, text on/off, publish value true/false
+    - create new text, name "Rename last", topic zigbee2mqtt/bridge/config/rename_last
+    
+Now connect to mqtt server, go to publish, switch pairing on. Check for logs in subscribe section that bridge confirmed
+that pairing is on (message will ends with permit_join:true). Then you should pair zigbee device, you should see result of pairing in subscribe/logs.
+You should also rename last joined device to some friendly name using publish/rename last event, simply write new name and publish it.    
+And that's all.
+
 
 # TODO
 
