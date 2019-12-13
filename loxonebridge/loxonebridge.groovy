@@ -20,8 +20,7 @@ import java.nio.charset.Charset
  *
  * Messages from zigbee2mqtt to loxone are processed as following example:
  *
- * zigbee/sensor_1 { "temperature":24.93, "linkquality":47, "battery":95 }
- *
+ * zigbee/sensor_1 { "temperature":24.93, "linkquality":47, "battery":95 }*
  * is translated to 3 udp messages:
  *
  * zigbee/sensor_1/temperature 24.93
@@ -37,8 +36,7 @@ import java.nio.charset.Charset
  *
  * is transferred to zigbee as following mqtt message:
  *
- * zigbee/led1/set { "brightness" : "255" }
- *
+ * zigbee/led1/set { "brightness" : "255" }*
  */
 
 
@@ -46,20 +44,27 @@ import java.nio.charset.Charset
 class LoxoneZigbeeGateway {
 
     def RECONNECT_TIME_SEC = 30
-    def UDP_PORT = 4445
+    def UDP_PORT = 4447
+
+    def LOXONE_ADDRESS = System.getenv("LOXONE_ADDRESS")
+    def LOXONE_PORT = System.getenv("LOXONE_PORT") as Integer
 
     def slurper = new JsonSlurper()
-    DatagramSocket udpSocket
+    DatagramSocket listenUdpSocket      // listening for data from loxone
+    DatagramSocket sendUdpSocket        // sending data to loxone
     MqttClient mqttClient
+
 
     // zigbee->loxone
     def setupMqtt() {
-        def mqttUrl = "mqtt://${System.getenv("MQTT_ADDRESS")}:1883"
+        def mqttUrl = "tcp://${System.getenv("MQTT_ADDRESS")}:1883"
         log.info("Connecting to mqtt ${mqttUrl}")
-        mqttClient = new MqttClient(mqttUrl, "loxone2zigbee_" + UUID.randomUUID().toString(), null)
+        mqttClient = new MqttClient(mqttUrl, "loxone2zigbee_" + ProcessHandle.current().pid(), null)
         mqttClient.connect()
         mqttClient.subscribe("zigbee/#")
         log.info("Connected to mqtt ${mqttUrl} and ready")
+
+        sendUdpSocket = new DatagramSocket()
 
         mqttClient.setCallback(new MqttCallback() {
             @Override
@@ -82,11 +87,11 @@ class LoxoneZigbeeGateway {
 
     // loxone->zigbee
     def listenUdp() {
-        udpSocket = new DatagramSocket(UDP_PORT);
+        listenUdpSocket = new DatagramSocket(UDP_PORT);
         while (true) {
             byte[] buffer = new byte[1024]
             DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-            udpSocket.receive(packet);
+            listenUdpSocket.receive(packet);
             String msg = new String(packet.getData(), 0, packet.getLength());
             def splt = a.trim().split("\\{")
             def mqttTopic = splt[0].trim()
@@ -101,11 +106,11 @@ class LoxoneZigbeeGateway {
             try {
                 setupMqtt()
                 listenUdp()
-            } catch(Exception e) {
-                log.debug("Exception caught" ,e)
+            } catch (Exception e) {
+                log.error("Exception caught", e)
             } finally {
                 mqttClient?.close()
-                udpSocket?.close()
+                listenUdpSocket?.close()
                 log.debug("Sleeping for ${RECONNECT_TIME_SEC} seconds ...")
                 Thread.sleep(1000 * RECONNECT_TIME_SEC)
             }
@@ -117,18 +122,27 @@ class LoxoneZigbeeGateway {
         if (!topic.startsWith("zigbee/")) {
             return;
         }
-        def jsonObject = slurper.parseText(message)
-        jsonObject.keySet().each { key ->
-            def value = jsonObject[key].toString()
-            def udpPacketData = "${topic}/${key} ${value}"
-            log.debug("Sending UDP ${udpPacketData}")
+        if (message.contains("{") && message.contains("}")) {
+            def jsonObject = slurper.parseText(message)
+            jsonObject.keySet().each { key ->
+                def value = jsonObject[key].toString()
+                sendToLoxoneUDP("${topic}/${key} ${value}")
+            }
+        } else {
+            sendToLoxoneUDP("${topic} ${message}")
         }
+    }
+
+    def sendToLoxoneUDP(String msg) {
+        log.debug("Sending UDP ${msg}")
+        def packet = new DatagramPacket(msg.getBytes(), msg.getBytes().length, InetAddress.getByName(LOXONE_ADDRESS), LOXONE_PORT)
+        sendUdpSocket.send(packet)
     }
 }
 
 
 // only grab artifacts and exit
-if(args.toString().contains("init")) {
+if (args.toString().contains("init")) {
     println "Grab artifacts"
     System.exit(0)
 }
