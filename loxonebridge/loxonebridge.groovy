@@ -44,7 +44,7 @@ import java.nio.charset.Charset
 class LoxoneZigbeeGateway {
 
     def RECONNECT_TIME_SEC = 30
-    def UDP_PORT = 4447
+    def UDP_PORT = 4445
 
     def LOXONE_ADDRESS = System.getenv("LOXONE_ADDRESS")
     def LOXONE_PORT = System.getenv("LOXONE_PORT") as Integer
