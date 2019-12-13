@@ -113,6 +113,7 @@ class LoxoneZigbeeGateway {
     }
 
     def processMessage(topic, message) {
+        println "Topic: ${topic}, message: ${message}"
         if (!topic.startsWith("zigbee/") || !message.startsWith("{")) {
             return;
         }
