@@ -1,6 +1,6 @@
 @Grab(group = 'org.eclipse.paho', module = 'mqtt-client', version = '0.4.0')
 @Grab(group = 'org.slf4j', module = 'slf4j-api', version = '1.6.1')
-@Grab(group = 'ch.qos.logback', module = 'logback-classic', version = '0.9.28')
+@Grab(group = 'org.slf4j', module = 'slf4j-simple', version = '1.6.1')
 
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
@@ -127,6 +127,12 @@ class LoxoneZigbeeGateway {
     }
 }
 
+
+// only grab artifacts and exit
+if(args.toString().contains("init")) {
+    println "Grab artifacts"
+    System.exit(0)
+}
 
 new LoxoneZigbeeGateway().run()
 
