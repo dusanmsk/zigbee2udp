@@ -27,19 +27,10 @@ services:
         env_file:
             - variables
 
-    # mqtt to udp bridge
-    zigbee2loxone:
+    loxonebridge:
         network_mode: host
-        build: zigbee2loxone
+        build: loxonebridge
         restart: always
         env_file:
             - variables
 
-    loxone2zigbee:
-        network_mode: host
-        build: loxone2zigbee
-        ports:
-        - 4445
-        restart: always
-        env_file:
-            - variables
