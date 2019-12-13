@@ -114,13 +114,15 @@ class LoxoneZigbeeGateway {
 
     def processMessage(topic, message) {
         println "Topic: ${topic}, message: ${message}"
+        message = message.trim()
         if (!topic.startsWith("zigbee/") || !message.startsWith("{")) {
+            println "nic, seru na to"       // todo
             return;
         }
         def jsonObject = slurper.parseText(message)
         jsonObject.keySet().each { key ->
             def value = jsonObject[key].toString()
-            def udpPacketData = "${topic}/${key} ${value}" //"topic + "/" + key + " " + str(jsonObject[key])
+            def udpPacketData = "${topic}/${key} ${value}"
             log.debug("Sending UDP ${udpPacketData}")
         }
     }
