@@ -54,9 +54,9 @@ class LoxoneZigbeeGateway {
 
     // zigbee->loxone
     def setupMqtt() {
-        def mqttUrl = "tcp://${System.getenv("MQTT_ADDRESS")}:1883"
+        def mqttUrl = "mqtt://${System.getenv("MQTT_ADDRESS")}:1883"
         log.info("Connecting to mqtt ${mqttUrl}")
-        mqttClient = new MqttClient(mqttUrl, "loxone2zigbee", null)
+        mqttClient = new MqttClient(mqttUrl, "loxone2zigbee_" + UUID.randomUUID().toString(), null)
         mqttClient.connect()
         mqttClient.subscribe("zigbee/#")
         log.info("Connected to mqtt ${mqttUrl} and ready")
@@ -89,8 +89,8 @@ class LoxoneZigbeeGateway {
             udpSocket.receive(packet);
             String msg = new String(packet.getData(), 0, packet.getLength());
             def splt = a.trim().split("\\{")
-            def mqttTopic = splt1[0].trim()
-            def jsonValue = "{ ${splt1[1].trim()}"
+            def mqttTopic = splt[0].trim()
+            def jsonValue = "{ ${splt[1].trim()}"
             log.debug("Sending to ${mqttTopic} value ${jsonValue}")
             mqttClient.publish(mqttTopic, new MqttMessage(jsonValue.getBytes(Charset.defaultCharset())))
         }
@@ -114,9 +114,7 @@ class LoxoneZigbeeGateway {
 
     def processMessage(topic, message) {
         println "Topic: ${topic}, message: ${message}"
-        message = message.trim()
-        if (!topic.startsWith("zigbee/") || !message.startsWith("{")) {
-            println "nic, seru na to"       // todo
+        if (!topic.startsWith("zigbee/")) {
             return;
         }
         def jsonObject = slurper.parseText(message)
