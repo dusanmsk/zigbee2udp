@@ -93,7 +93,7 @@ class LoxoneZigbeeGateway {
             DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
             listenUdpSocket.receive(packet);
             String msg = new String(packet.getData(), 0, packet.getLength());
-            def splt = a.trim().split("\\{")
+            def splt = msg.trim().split("\\{")
             def mqttTopic = splt[0].trim()
             def jsonValue = "{ ${splt[1].trim()}"
             log.debug("Sending to ${mqttTopic} value ${jsonValue}")
