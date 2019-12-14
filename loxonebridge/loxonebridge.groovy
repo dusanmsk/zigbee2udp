@@ -16,7 +16,7 @@ import java.nio.charset.Charset
  *
  * It has 2 parts:
  * - zigbee -> loxone is based on listening on mqtt events from zigbee2mqtt and sending them as udp packets to loxone
- * - loxone -> zigbee is based on listening for udp packets from loxone and sending them as mqtt messages to zigbee2mqtt
+ * - loxone -> zigbee TODO
  *
  * Messages from zigbee2mqtt to loxone are processed as following example:
  *
@@ -30,13 +30,7 @@ import java.nio.charset.Charset
  * They should be easily parsed in loxone as:
  * zigbee/sensor_1/temperature \v
  *
- * UDP commands from loxone are processed as following example:
- *
- * udp command "zigbee/led1/set/brightness 255"
- *
- * is transferred to zigbee as following mqtt message:
- *
- * zigbee/led1/set { "brightness" : "255" }*
+ * TODO loxone 2 zigbee
  */
 
 
@@ -44,24 +38,22 @@ import java.nio.charset.Charset
 class LoxoneZigbeeGateway {
 
     def RECONNECT_TIME_SEC = 30
-    def UDP_PORT = 4445
 
     def LOXONE_ADDRESS = System.getenv("LOXONE_ADDRESS")
     def LOXONE_PORT = System.getenv("LOXONE_PORT") as Integer
 
     def slurper = new JsonSlurper()
-    DatagramSocket listenUdpSocket      // listening for data from loxone
     DatagramSocket sendUdpSocket        // sending data to loxone
     MqttClient mqttClient
 
-
-    // zigbee->loxone
     def setupMqtt() {
         def mqttUrl = "tcp://${System.getenv("MQTT_ADDRESS")}:1883"
         log.info("Connecting to mqtt ${mqttUrl}")
         mqttClient = new MqttClient(mqttUrl, "loxone2zigbee_" + ProcessHandle.current().pid(), null)
         mqttClient.connect()
-        mqttClient.subscribe("zigbee/#")
+        mqttClient.subscribe("zigbee/#")    // todo property
+        mqttClient.subscribe("lox/#")       // todo property
+
         log.info("Connected to mqtt ${mqttUrl} and ready")
 
         sendUdpSocket = new DatagramSocket()
@@ -85,36 +77,13 @@ class LoxoneZigbeeGateway {
 
     }
 
-    // loxone->zigbee
-    def listenUdp() {
-        listenUdpSocket = new DatagramSocket(UDP_PORT);
-        while (true) {
-            byte[] buffer = new byte[1024]
-            DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-            listenUdpSocket.receive(packet);
-            String msg = new String(packet.getData(), 0, packet.getLength());
-            println "received: '${msg}'"
-            def splt_adr_val = msg.split(" ")
-            def splt_adr = splt_adr_val[0].split("/")
-            def name = splt_adr[-1].trim()
-            def value = splt_adr_val[1].trim()
-            def mqttTopic = splt_adr[0..-2].join("/")
-            def jsonValue = """{ "${name}" : "${value}" }"""
-            log.debug("Sending to ${mqttTopic} value ${jsonValue}")
-            mqttClient.publish(mqttTopic, new MqttMessage(jsonValue.getBytes(Charset.defaultCharset())))
-        }
-    }
-
     def run() {
         while (true) {
             try {
                 setupMqtt()
-                listenUdp()
             } catch (Exception e) {
                 log.error("Exception caught", e)
             } finally {
-                mqttClient?.close()
-                listenUdpSocket?.close()
                 log.debug("Sleeping for ${RECONNECT_TIME_SEC} seconds ...")
                 Thread.sleep(1000 * RECONNECT_TIME_SEC)
             }
@@ -123,9 +92,28 @@ class LoxoneZigbeeGateway {
 
     def processMessage(topic, message) {
         println "Topic: ${topic}, message: ${message}"
-        if (!topic.startsWith("zigbee/")) {
-            return;
+        if (topic.startsWith("zigbee/")) {
+            processZigbeeToLoxone(topic, message)
+        } else if (topic.startsWith("lox/") && topic.contains("/2zigbee")) {
+            processLoxoneToZigbee(topic, message)
         }
+    }
+
+    def processLoxoneToZigbee(topic, message) {
+        def tmp = topic.split("/")[-2].replace("2zigbee_","").split("_")
+        def destZigbeeTopic = "zigbee/" + tmp[0..-2].join("/")
+        def destValue = tmp[-1]
+        def jsonObject = slurper.parseText(message)
+        def value = jsonObject['value']
+        def destJson = """{ "${destValue}" : "${value}" }"""
+
+        println "sending"
+        mqttClient.publish(destZigbeeTopic, destJson.getBytes(Charset.defaultCharset()),2, false) // todo preco sa toto dopice zasekne? !
+        println "sent"
+
+    }
+
+    def processZigbeeToLoxone(topic, message) {
         if (message.contains("{") && message.contains("}")) {
             def jsonObject = slurper.parseText(message)
             jsonObject.keySet().each { key ->
