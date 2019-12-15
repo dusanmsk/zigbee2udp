@@ -1,6 +1,6 @@
 # Zigbee to Loxone (UDP) bridge
 
-Simple docker-compose suite to connect zigbee ecosystem to Loxone using UDP packets. 
+Simple docker-compose suite to connect zigbee ecosystem to Loxone using UDP packets (for zigbee->loxone communicaiton). 
 
 Project is meant as follow-up to https://www.zigbee2mqtt.io/.
 
@@ -9,9 +9,6 @@ Project is meant as follow-up to https://www.zigbee2mqtt.io/.
 - you already have custom flashed zigbee usb token (https://www.zigbee2mqtt.io/) 
 
 #### How to install
-- Create new UDP Virtual input in loxone which will listen (for example) on udp port 4444
-- Then:
-
 
 ###### For baremetal with hdd or ssd (you don't care filesystem lifetime):
 
@@ -22,11 +19,9 @@ Project is meant as follow-up to https://www.zigbee2mqtt.io/.
     git clone https://github.com/dusanmsk/zigbee2udp.git
     cd zigbee2udp
     
-    # Edit mqtt2udp/mqtt2udp.py and set loxone address and port
-    # optionally set timezone in docker-compose.yml zigbee2mqtt section
-    # optionally change network_key in configuration/configuration.yaml
+    # Edit variables file and set what is required
     # optionally remove mqtt section in docker-compose if you already have some mqtt server running somewhere else
-
+    # optionally remove node-lox-mqtt-gateway section in docker-compose if you are running loxone-grafana suite
         
     ./run.sh
     # check everything is ok then break with ctrl+c
@@ -74,10 +69,9 @@ Example for OrangePI One:
     git clone https://github.com/dusanmsk/zigbee2udp.git
     cd zigbee2udp
     
-    # Edit mqtt2udp/mqtt2udp.py and set loxone address and port
-    # optionally set timezone in docker-compose.yml zigbee2mqtt section
-    # optionally change network_key in configuration/configuration.yaml
+    # Edit variables file and set what is required
     # optionally remove mqtt section in docker-compose if you already have some mqtt server running somewhere else
+    # optionally remove node-lox-mqtt-gateway section in docker-compose if you are running loxone-grafana suite
         
     ./run.sh
     # check everything is ok then break with ctrl+c
@@ -97,12 +91,25 @@ Rootfs is now in readonly and should not be modified anyway. If you need to modi
     overlayroot-chroot rm -f /etc/overlayroot.local.conf
     reboot
     
-Make your changes, then reenable overlayroot again (previous step).    
+Make your changes, then reenable overlayroot again (previous step).
+
+# How to configure
+
+### zigbee->loxone
+Create new UDP Virtual input in loxone on port you specified in configuration. Open UDP monitor and watch for a traffic,
+then create virtual commands for messages you are interested in.
+
+### loxone->zigbee
+(Optionally) create new user for zigbee (name and password as you specified in variables).
+Now create virtal output, which name starts with 'lox2zigbee_'. Whatever is after this name is used
+as mqtt path to zigbee device, so for example virtual input with name 'lox2zigbee_led1_set_brightness' will send
+mqtt message zigbee/led1/set { "brightness" : VALUE }, which is message for IKEA Tradfri LED bulb named "led1".
+    
 
 # How it works
 
 Zigbee2mqtt receives zigbee messages from zigbee devices and sends them to mqtt topic.
-Mqtt2udp listens for that topics and extracts all flat data coming from zigbee device,
+Loxonebridge listens for that topics and extracts all flat data coming from zigbee device,
 mapping it to udp messages which are then sent to loxone miniserver.
 
 Example:
@@ -135,6 +142,16 @@ For example create analog input with command recognition:
     zigbee2mqtt/livingroom/aquara/temperature \v
    
 ... and you will receive livingroom temperature as analog value.
+
+For way from loxone to zigbee node-lox-mqtt-gateway is used. It connects to loxone socket as a web browser
+and transforms all visible data to mqtt messages. Those are parsed by loxonebridge, preprocessed and sent to
+zigbee2mqtt. Whenever any component (mostly virtual output) is named lox2zigbee_*, zigbee mqtt path
+is extracted from component name and message is re-send to zigbee2mqtt and to zigbee device.
+
+lox2zigbee_led1_set_brightness --> zigbee/led1/set { "brightness" : VALUE }
+
+
+
 
 ## Pairing using android phone
 
