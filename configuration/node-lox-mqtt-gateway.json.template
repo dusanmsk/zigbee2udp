@@ -1,0 +1,21 @@
+{
+  "winston": [{
+    "Console": {
+      "level": "info",
+      "colorize": true,
+      "timestamp": true
+    }
+  }],
+  "mqtt": {
+    "host": "mqtt://%MQTT_ADDRESS%:1883",
+    "options": {
+      "clientId": "node-lox-mqtt-gateway"
+    }
+  },
+  "miniserver": {
+    "host": "%LOXONE_ADDRESS%:80",
+    "username": "%LOXONE_USERNAME%",
+    "password": "%LOXONE_PASSWORD%",
+    "readonly": true
+  }
+}

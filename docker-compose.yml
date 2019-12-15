@@ -34,3 +34,11 @@ services:
         env_file:
             - variables
 
+    node-lox-mqtt-gateway:
+        network_mode: host
+        build: node-lox-mqtt-gateway
+        restart: always
+        volumes:
+            - ./configuration/node-lox-mqtt-gateway.json:/default.json
+        env_file:
+            - variables

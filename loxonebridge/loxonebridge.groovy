@@ -10,13 +10,14 @@ import org.eclipse.paho.client.mqttv3.MqttClient
 import org.eclipse.paho.client.mqttv3.MqttMessage
 
 import java.nio.charset.Charset
+import java.util.concurrent.Executors
 
 /**
  * Zigbee <--> loxone bridge
  *
  * It has 2 parts:
  * - zigbee -> loxone is based on listening on mqtt events from zigbee2mqtt and sending them as udp packets to loxone
- * - loxone -> zigbee TODO
+ * - loxone -> zigbee is based on listening on mqtt events from node-lox-mqtt-gateway
  *
  * Messages from zigbee2mqtt to loxone are processed as following example:
  *
@@ -30,9 +31,20 @@ import java.nio.charset.Charset
  * They should be easily parsed in loxone as:
  * zigbee/sensor_1/temperature \v
  *
- * TODO loxone 2 zigbee
+ * Messages from loxone to zigbee are processed by following way:
+ * node-lox-mqtt-gateway connects to loxone as "web client" and see all controllers and values as connected user see in web browser
+ * it sends all value changes to mqtt topic lox/ROOM/CATEGORY/COMPONENT_NAME/state { value : XYZ }
+ * If the component is named "lox2zigbee_anything_after_is_zigbee_mqtt_path", it re-sends that value
+ * to topic zigbee/anything/after/is/zigbee/mqtt { path: XYZ}
+ *
+ * For example if you want to control IKEA led bulb which is named led1 in zigbee2mqtt, its mqtt address is:
+ * zigbee/led1/set { brightness: 100 }
+ *
+ * So create virtual output in loxone named:
+ * lox2zigbee_led1_set_brightness
+ *
+ * and gateway will take care for resending to proper topic
  */
-
 
 @Slf4j
 class LoxoneZigbeeGateway {
@@ -45,15 +57,15 @@ class LoxoneZigbeeGateway {
     def slurper = new JsonSlurper()
     DatagramSocket sendUdpSocket        // sending data to loxone
     MqttClient mqttClient
+    def sendingPool = Executors.newFixedThreadPool(10 )     // must send mqtt messages in parallel threads
 
     def setupMqtt() {
         def mqttUrl = "tcp://${System.getenv("MQTT_ADDRESS")}:1883"
         log.info("Connecting to mqtt ${mqttUrl}")
-        mqttClient = new MqttClient(mqttUrl, "loxone2zigbee_" + ProcessHandle.current().pid(), null)
+        mqttClient = new MqttClient(mqttUrl, "loxone2zigbee", null)
         mqttClient.connect()
         mqttClient.subscribe("zigbee/#")    // todo property
         mqttClient.subscribe("lox/#")       // todo property
-
         log.info("Connected to mqtt ${mqttUrl} and ready")
 
         sendUdpSocket = new DatagramSocket()
@@ -94,23 +106,22 @@ class LoxoneZigbeeGateway {
         println "Topic: ${topic}, message: ${message}"
         if (topic.startsWith("zigbee/")) {
             processZigbeeToLoxone(topic, message)
-        } else if (topic.startsWith("lox/") && topic.contains("/2zigbee")) {
+        } else if (topic.startsWith("lox/") && topic.contains("/lox2zigbee")) {
             processLoxoneToZigbee(topic, message)
         }
     }
 
     def processLoxoneToZigbee(topic, message) {
-        def tmp = topic.split("/")[-2].replace("2zigbee_","").split("_")
+        def tmp = topic.split("/")[-2].replace("lox2zigbee_","").split("_")
         def destZigbeeTopic = "zigbee/" + tmp[0..-2].join("/")
         def destValue = tmp[-1]
         def jsonObject = slurper.parseText(message)
         def value = jsonObject['value']
         def destJson = """{ "${destValue}" : "${value}" }"""
-
-        println "sending"
-        mqttClient.publish(destZigbeeTopic, destJson.getBytes(Charset.defaultCharset()),2, false) // todo preco sa toto dopice zasekne? !
-        println "sent"
-
+        // must send in another thread or publish will block ...
+        sendingPool.submit({
+            mqttClient.publish(destZigbeeTopic, destJson.getBytes(Charset.defaultCharset()), 2, false)
+        })
     }
 
     def processZigbeeToLoxone(topic, message) {

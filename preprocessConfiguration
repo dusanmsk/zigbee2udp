@@ -1,3 +1,17 @@
 #!/bin/bash
 . variables
-cat configuration/configuration.yaml.template | sed s/%MQTT_ADDRESS%/$MQTT_ADDRESS/ > configuration/configuration.yaml
+
+function replaceTemplate() {
+
+cat ${1}.template | \
+sed s/%MQTT_ADDRESS%/$MQTT_ADDRESS/ | \
+sed s/%LOXONE_ADDRESS%/$LOXONE_ADDRESS/  | \
+sed s/%LOXONE_USERNAME%/$LOXONE_USERNAME/ | \
+sed s/%LOXONE_PASSWORD%/$LOXONE_PASSWORD/ | \
+sed s/%LOXONE_PORT%/$LOXONE_PORT/ \
+> ${1}
+
+}
+
+replaceTemplate configuration/configuration.yaml
+replaceTemplate configuration/node-lox-mqtt-gateway.json
